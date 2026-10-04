@@ -6,8 +6,8 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "dist:win": "electron-builder --win",
-    "dist:mac": "electron-builder --mac"
+    "dist:win": "electron-builder --win --publish never",
+    "dist:mac": "electron-builder --mac --publish never"
   },
   "keywords": [
     "invoice",
