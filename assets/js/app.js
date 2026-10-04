@@ -10,7 +10,7 @@ window.showToast = function(message, type = 'info') {
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    
+
     let icon = 'ℹ️';
     if (type === 'success') icon = '✅';
     if (type === 'error') icon = '⚠️';
@@ -90,7 +90,7 @@ class InvoiceHistoryManager {
 
         const filtered = this.invoices.filter(inv => {
             const matchesStatus = this.filterStatus === 'all' || inv.status === this.filterStatus;
-            const clientName = (inv.client && inv.client.name) ? inv.client.name.toLowerCase() : '';
+            const clientName = (inv.billTo && inv.billTo.name) ? inv.billTo.name.toLowerCase() : '';
             const invNum = (inv.invoiceNumber || '').toLowerCase();
             const matchesSearch = !this.searchQuery || clientName.includes(this.searchQuery) || invNum.includes(this.searchQuery);
             return matchesStatus && matchesSearch;
@@ -116,20 +116,17 @@ class InvoiceHistoryManager {
             return;
         }
 
-        const currency = window.appStorage.getSettings().currencySymbol || '$';
-
         tbody.innerHTML = filtered.map(inv => `
             <tr>
-                <td><strong class="text-primary">${this.escapeHtml(inv.invoiceNumber)}</strong></td>
+                <td><strong style="color: #c5221f;">No. ${this.escapeHtml(inv.invoiceNumber)}</strong></td>
                 <td>
-                    <strong>${this.escapeHtml(inv.client?.name || 'Unnamed Client')}</strong>
-                    ${inv.client?.company ? `<br><small class="text-muted">${this.escapeHtml(inv.client.company)}</small>` : ''}
+                    <strong>${this.escapeHtml(inv.billTo?.name || 'Unnamed Client')}</strong>
                 </td>
                 <td>${inv.date}</td>
-                <td>${inv.dueDate || '—'}</td>
-                <td class="text-right font-bold">${currency}${(parseFloat(inv.grandTotal) || 0).toFixed(2)}</td>
+                <td>${inv.terms || '—'}</td>
+                <td class="text-right font-bold font-mono">₹ ${(parseFloat(inv.totalPayable) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td class="text-center">
-                    <select class="status-select status-${inv.status.toLowerCase()}" onchange="window.invoiceHistoryManager.changeStatus('${inv.id}', this.value)">
+                    <select class="status-select" onchange="window.invoiceHistoryManager.changeStatus('${inv.id}', this.value)">
                         <option value="Draft" ${inv.status === 'Draft' ? 'selected' : ''}>Draft</option>
                         <option value="Sent" ${inv.status === 'Sent' ? 'selected' : ''}>Sent</option>
                         <option value="Paid" ${inv.status === 'Paid' ? 'selected' : ''}>Paid</option>
@@ -205,19 +202,21 @@ class SettingsManager {
         };
 
         set('settingBusinessName', s.businessName);
-        set('settingTagline', s.tagline);
+        set('settingBrandLogoText', s.brandLogoText);
+        set('settingBrandSubtitle', s.brandSubtitle);
         set('settingAddress', s.address);
-        set('settingPhone', s.phone);
+        set('settingGstin', s.gstin);
+        set('settingArn', s.arn);
         set('settingEmail', s.email);
-        set('settingWebsite', s.website);
-        set('settingTaxId', s.taxId);
-        set('settingPaymentDetails', s.paymentDetails);
-        set('settingDefaultTerms', s.defaultTerms);
-        set('settingDefaultNotes', s.defaultNotes);
-        set('settingDefaultTaxRate', s.defaultTaxRate);
-        set('settingCurrencySymbol', s.currencySymbol);
-        set('settingNextInvoiceNum', s.nextInvoiceNumber);
-        set('settingInvoicePrefix', s.invoicePrefix);
+        set('settingPhone', s.phone);
+
+        set('settingBankName', s.bankName);
+        set('settingAccountName', s.accountName);
+        set('settingAccountNo', s.accountNo);
+        set('settingIfsc', s.ifsc);
+        set('settingBranchPlace', s.branchPlace);
+        set('settingUpiId', s.upiId);
+        set('settingCompanySealText', s.companySealText);
 
         const logoPreview = document.getElementById('settingLogoPreview');
         if (logoPreview) {
@@ -227,7 +226,6 @@ class SettingsManager {
     }
 
     setupEventListeners() {
-        // Logo file selector
         const logoInput = document.getElementById('settingLogoInput');
         if (logoInput) {
             logoInput.addEventListener('change', (e) => {
@@ -259,25 +257,25 @@ class SettingsManager {
         const updated = {
             ...current,
             businessName: get('settingBusinessName'),
-            tagline: get('settingTagline'),
+            brandLogoText: get('settingBrandLogoText'),
+            brandSubtitle: get('settingBrandSubtitle'),
             address: get('settingAddress'),
-            phone: get('settingPhone'),
+            gstin: get('settingGstin'),
+            arn: get('settingArn'),
             email: get('settingEmail'),
-            website: get('settingWebsite'),
-            taxId: get('settingTaxId'),
-            paymentDetails: get('settingPaymentDetails'),
-            defaultTerms: get('settingDefaultTerms'),
-            defaultNotes: get('settingDefaultNotes'),
-            defaultTaxRate: parseFloat(get('settingDefaultTaxRate')) || 0,
-            currencySymbol: get('settingCurrencySymbol') || '$',
-            nextInvoiceNumber: parseInt(get('settingNextInvoiceNum'), 10) || 1001,
-            invoicePrefix: get('settingInvoicePrefix') || 'INV-'
+            phone: get('settingPhone'),
+            bankName: get('settingBankName'),
+            accountName: get('settingAccountName'),
+            accountNo: get('settingAccountNo'),
+            ifsc: get('settingIfsc'),
+            branchPlace: get('settingBranchPlace'),
+            upiId: get('settingUpiId'),
+            companySealText: get('settingCompanySealText')
         };
 
         window.appStorage.saveSettings(updated);
-        window.showToast('Company profile and defaults saved!', 'success');
+        window.showToast('Company profile & bank settings saved!', 'success');
 
-        // Update live preview in invoice builder
         if (window.invoiceBuilder) {
             window.invoiceBuilder.calculateAndRender();
         }
@@ -290,9 +288,9 @@ class SettingsManager {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `invoice-app-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `invoice-data-backup-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
-        window.showToast('Full data backup downloaded successfully!', 'success');
+        window.showToast('Data backup downloaded successfully!', 'success');
     }
 
     importFullBackup(file) {
@@ -305,7 +303,7 @@ class SettingsManager {
                 this.loadSettingsToForm();
                 if (window.catalogManager) window.catalogManager.loadCatalog();
                 if (window.invoiceHistoryManager) window.invoiceHistoryManager.loadInvoices();
-                if (window.invoiceBuilder) window.invoiceBuilder.resetToNewInvoice();
+                if (window.invoiceBuilder) window.invoiceBuilder.calculateAndRender();
                 window.showToast('Backup restored successfully!', 'success');
             } catch (err) {
                 window.showToast('Failed to restore backup: ' + err.message, 'error');
@@ -323,22 +321,23 @@ window.openCatalogPickerModal = function() {
     if (!modal || !tbody) return;
 
     const catalog = window.appStorage.getCatalog();
-    const currency = window.appStorage.getSettings().currencySymbol || '$';
 
     const renderList = (items) => {
         if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center p-3 text-muted">No catalog items found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center p-3 text-muted">No catalog products found.</td></tr>';
             return;
         }
 
         tbody.innerHTML = items.map(item => `
             <tr>
-                <td><code>${item.sku || '—'}</code></td>
+                <td><code class="font-mono">${item.hsn || '85469010'}</code></td>
                 <td>
                     <strong>${item.name}</strong>
                     ${item.description ? `<br><small class="text-muted">${item.description}</small>` : ''}
                 </td>
-                <td class="text-right font-semibold">${currency}${parseFloat(item.price || 0).toFixed(2)}</td>
+                <td>${item.unit || 'Nos'}</td>
+                <td class="text-right font-mono font-bold">₹ ${(parseFloat(item.price) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td class="text-right">${item.defaultDiscount || 0}%</td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-primary" onclick="window.selectCatalogItemForInvoice('${item.id}')">
                         + Add
@@ -354,10 +353,11 @@ window.openCatalogPickerModal = function() {
         searchInput.value = '';
         searchInput.oninput = (e) => {
             const q = e.target.value.toLowerCase().trim();
-            const filtered = catalog.filter(it => 
+            const filtered = catalog.filter(it =>
                 (it.name && it.name.toLowerCase().includes(q)) ||
+                (it.hsn && it.hsn.toLowerCase().includes(q)) ||
                 (it.sku && it.sku.toLowerCase().includes(q)) ||
-                (it.description && it.description.toLowerCase().includes(q))
+                (it.category && it.category.toLowerCase().includes(q))
             );
             renderList(filtered);
         };
@@ -371,7 +371,7 @@ window.selectCatalogItemForInvoice = function(itemId) {
     const item = catalog.find(i => i.id === itemId);
     if (item && window.invoiceBuilder) {
         window.invoiceBuilder.addItemFromCatalog(item);
-        window.showToast(`Added "${item.name}" to invoice!`, 'success');
+        window.showToast(`Added "${item.name}" with HSN ${item.hsn || ''}!`, 'success');
     }
     const modal = document.getElementById('catalogPickerModal');
     if (modal) modal.close();

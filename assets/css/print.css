@@ -1,9 +1,9 @@
-/* print.css - High Fidelity Print and PDF Stylesheet */
+/* print.css - High Fidelity Print & PDF Stylesheet for Exact Invoice */
 
 @media print {
     @page {
         size: A4 portrait;
-        margin: 10mm 12mm;
+        margin: 6mm 8mm;
     }
 
     html, body {
@@ -13,13 +13,13 @@
         padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
-        font-size: 11pt !important;
+        font-size: 10pt !important;
         overflow: visible !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    /* Hide entire desktop UI */
+    /* Hide desktop interface elements */
     .sidebar,
     .page-header,
     .invoice-editor-pane,
@@ -33,7 +33,7 @@
         display: none !important;
     }
 
-    /* Reset layout for print */
+    /* Container resets */
     .app-container,
     .content-area,
     .tab-pane,
@@ -48,36 +48,48 @@
         overflow: visible !important;
     }
 
-    /* Target invoice sheet specifically */
-    .invoice-sheet {
-        display: block !important;
+    /* Target exact replica invoice sheet */
+    .exact-invoice-sheet {
+        display: flex !important;
+        flex-direction: column !important;
         width: 100% !important;
         max-width: 100% !important;
         min-height: auto !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 12px 14px !important;
         box-shadow: none !important;
-        border: none !important;
+        border: 1.5px solid #000000 !important;
         background: #ffffff !important;
-        page-break-after: avoid;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
     }
 
-    /* Avoid bad breaks inside tables and summary */
-    .inv-table,
-    .inv-table tr,
-    .inv-summary-row,
-    .inv-parties,
-    .inv-header {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
+    /* Color protection */
+    .color-red { color: #c5221f !important; }
+    .color-green { color: #15803d !important; }
+    .color-gold { color: #d97706 !important; }
+    .ex-doc-title, .ex-doc-number { color: #c5221f !important; }
 
-    .inv-table th {
+    .ex-items-table th {
+        background-color: #f1f5f9 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    .status-badge {
-        border: 1px solid #cbd5e1 !important;
+    .ex-parties-grid,
+    .ex-meta-bar,
+    .ex-items-table,
+    .ex-calc-container,
+    .ex-words-strip,
+    .ex-footer-box {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .ex-seal-circle {
+        border-color: #0284c7 !important;
+        color: #0284c7 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 }

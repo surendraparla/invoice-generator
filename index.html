@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InvoiceMaster - Offline Desktop Invoice Generator</title>
+    <title>InvoiceMaster - Desktop Invoice Generator</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/print.css">
 </head>
@@ -13,17 +13,17 @@
         <aside class="sidebar">
             <div>
                 <div class="brand-section">
-                    <div class="brand-icon">🧾</div>
+                    <div class="brand-icon">⚡</div>
                     <div>
                         <div class="brand-title">InvoiceMaster</div>
-                        <div class="brand-subtitle">Desktop Edition</div>
+                        <div class="brand-subtitle">GST & Proforma Edition</div>
                     </div>
                 </div>
 
                 <nav class="nav-menu">
                     <button class="tab-btn active" data-target="invoiceTab">
                         <span class="tab-btn-icon">📄</span>
-                        <span>Create Invoice</span>
+                        <span>Invoice Builder</span>
                     </button>
                     <button class="tab-btn" data-target="catalogTab">
                         <span class="tab-btn-icon">📦</span>
@@ -31,36 +31,36 @@
                     </button>
                     <button class="tab-btn" data-target="historyTab">
                         <span class="tab-btn-icon">📑</span>
-                        <span>Invoice History</span>
+                        <span>Saved Invoices</span>
                     </button>
                     <button class="tab-btn" data-target="settingsTab">
                         <span class="tab-btn-icon">⚙️</span>
-                        <span>Settings & Backup</span>
+                        <span>Company & Bank</span>
                     </button>
                 </nav>
             </div>
 
             <div class="sidebar-footer">
                 <span class="badge-offline">100% Offline & Local</span>
-                <span>All data stored on this device</span>
+                <span>Zero cloud, all data on device</span>
             </div>
         </aside>
 
         <!-- Main Content Area -->
         <main class="content-area">
-            <!-- TAB 1: CREATE INVOICE -->
+            <!-- TAB 1: INVOICE BUILDER -->
             <section id="invoiceTab" class="tab-pane active">
                 <header class="page-header">
                     <div>
                         <h1 class="page-header-title">Invoice Generator</h1>
-                        <p class="page-header-subtitle">Build, customize, and export professional invoices</p>
+                        <p class="page-header-subtitle">Build Indian GST Proforma & Tax Invoices with item discounts</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn btn-secondary" onclick="window.invoiceBuilder.resetToNewInvoice()">
                             ➕ New Invoice
                         </button>
                         <button class="btn btn-primary" onclick="window.invoiceBuilder.saveInvoice()">
-                            💾 Save to History
+                            💾 Save Invoice
                         </button>
                         <button class="btn btn-secondary" onclick="window.invoiceBuilder.downloadPdf()">
                             📥 Download PDF
@@ -72,21 +72,39 @@
                 </header>
 
                 <div class="invoice-split-container">
-                    <!-- Left: Form Controls / Editor -->
+                    <!-- Left: Invoice Editor Controls -->
                     <div class="invoice-editor-pane">
-                        <!-- Invoice Meta -->
+                        <!-- Card 1: Document Details & Dispatch -->
                         <div class="editor-card">
                             <div class="editor-card-header">
-                                <span class="editor-card-title">📌 Invoice Details</span>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label for="invAccentColorPicker" style="font-size: 11px; color: var(--text-muted);">Theme Color:</label>
-                                    <input type="color" id="invAccentColorPicker" value="#2563eb" style="border: none; width: 28px; height: 28px; cursor: pointer; border-radius: 4px;">
+                                <span class="editor-card-title">📌 Document & Dispatch Details</span>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Doc Title</label>
+                                    <input type="text" id="docTitleInput" class="form-control" placeholder="Proforma Invoice">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Invoice / Doc #</label>
+                                    <input type="text" id="docNumberInput" class="form-control" placeholder="0210">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date (DD-MM-YYYY)</label>
+                                    <input type="text" id="invDateInput" class="form-control" placeholder="02-10-2026">
                                 </div>
                             </div>
                             <div class="form-group-row">
                                 <div class="form-group">
-                                    <label class="form-label">Invoice Number</label>
-                                    <input type="text" id="invNumberInput" class="form-control" placeholder="INV-1001">
+                                    <label class="form-label">PO No. & Date</label>
+                                    <input type="text" id="poNumberDateInput" class="form-control" placeholder="—">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">No. of Bags</label>
+                                    <input type="text" id="noOfBagsInput" class="form-control" placeholder="—">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Terms</label>
+                                    <input type="text" id="invTermsInput" class="form-control" placeholder="As per PI">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Status</label>
@@ -98,145 +116,173 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">Issue Date</label>
-                                    <input type="date" id="invDateInput" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Due Date</label>
-                                    <input type="date" id="invDueDateInput" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">P.O. / Ref #</label>
-                                    <input type="text" id="invPoNumberInput" class="form-control" placeholder="Optional PO">
-                                </div>
-                            </div>
                         </div>
 
-                        <!-- Bill To / Customer -->
+                        <!-- Card 2: 3 Parties (Bill To, Consignee, Delivery) -->
                         <div class="editor-card">
                             <div class="editor-card-header">
-                                <span class="editor-card-title">👤 Bill To (Customer)</span>
-                            </div>
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">Client Name *</label>
-                                    <input type="text" id="clientNameInput" class="form-control" placeholder="e.g. John Doe">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Company Name</label>
-                                    <input type="text" id="clientCompanyInput" class="form-control" placeholder="e.g. Acme Corp">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Billing Address</label>
-                                <textarea id="clientAddressInput" class="form-control" rows="2" placeholder="Street, City, State, ZIP"></textarea>
-                            </div>
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label class="form-label">Client Email</label>
-                                    <input type="email" id="clientEmailInput" class="form-control" placeholder="client@example.com">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Client Phone</label>
-                                    <input type="tel" id="clientPhoneInput" class="form-control" placeholder="+1 555-0192">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Tax / VAT ID</label>
-                                    <input type="text" id="clientTaxIdInput" class="form-control" placeholder="Optional VAT/GST">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Line Items -->
-                        <div class="editor-card">
-                            <div class="editor-card-header">
-                                <span class="editor-card-title">📋 Line Items</span>
-                                <div style="display: flex; gap: 8px;">
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.openCatalogPickerModal()">
-                                        📦 + Add from Catalog
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="window.invoiceBuilder.addCustomItem()">
-                                        ➕ Custom Item
-                                    </button>
-                                </div>
+                                <span class="editor-card-title">🏢 Parties Information</span>
                             </div>
 
-                            <table class="line-items-table">
-                                <thead>
-                                    <tr>
-                                        <th>Item & Details</th>
-                                        <th class="text-center">Qty</th>
-                                        <th class="text-center">Unit</th>
-                                        <th class="text-right">Price</th>
-                                        <th class="text-right">Tax</th>
-                                        <th class="text-right">Total</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="invoiceLineItemsBody">
-                                    <!-- Populated by invoice.js -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Adjustments & Totals -->
-                        <div class="editor-card">
-                            <div class="editor-card-header">
-                                <span class="editor-card-title">💰 Discounts & Adjustments</span>
-                            </div>
-                            <div class="form-group-row">
+                            <!-- Bill To -->
+                            <div style="border-left: 3px solid #c5221f; padding-left: 10px; margin-bottom: 14px;">
+                                <div style="font-size: 11px; font-weight: 800; color: #c5221f; margin-bottom: 6px;">BILL TO</div>
                                 <div class="form-group">
-                                    <label class="form-label">Discount</label>
-                                    <div style="display: flex; gap: 6px;">
-                                        <input type="number" step="any" min="0" id="invDiscountValueInput" class="form-control" value="0">
-                                        <select id="invDiscountTypeInput" class="form-control" style="width: 90px;">
-                                            <option value="percent">%</option>
-                                            <option value="flat">Flat</option>
-                                        </select>
+                                    <input type="text" id="billToNameInput" class="form-control form-control-sm font-bold" placeholder="M/S. Company / Client Name">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="billToAddressInput" class="form-control form-control-sm" rows="2" placeholder="Full Address with District and PIN"></textarea>
+                                </div>
+                                <div class="form-group-row">
+                                    <div class="form-group">
+                                        <label class="form-label">GSTIN / UIN</label>
+                                        <input type="text" id="billToGstinInput" class="form-control form-control-sm" placeholder="37AJZPD2435N2ZK">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">State Name</label>
+                                        <input type="text" id="billToStateNameInput" class="form-control form-control-sm" placeholder="ANDHRA PRADESH">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">State Code</label>
+                                        <input type="text" id="billToStateCodeInput" class="form-control form-control-sm" placeholder="37">
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">Shipping / Handling</label>
-                                    <input type="number" step="0.01" min="0" id="invShippingFeeInput" class="form-control" value="0.00">
+                            </div>
+
+                            <!-- Consignee -->
+                            <div style="border-left: 3px solid #15803d; padding-left: 10px; margin-bottom: 14px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-size: 11px; font-weight: 800; color: #15803d;">CONSIGNEE</span>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.invoiceBuilder.copyBillToConsignee()">
+                                        📋 Same as Bill To
+                                    </button>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Amount Paid / Deposit</label>
-                                    <input type="number" step="0.01" min="0" id="invPaidAmountInput" class="form-control" value="0.00">
+                                    <input type="text" id="consigneeNameInput" class="form-control form-control-sm font-bold" placeholder="M/S. Consignee Name">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="consigneeAddressInput" class="form-control form-control-sm" rows="2" placeholder="Consignee Address"></textarea>
+                                </div>
+                                <div class="form-group-row">
+                                    <div class="form-group">
+                                        <label class="form-label">GSTIN / UIN</label>
+                                        <input type="text" id="consigneeGstinInput" class="form-control form-control-sm" placeholder="GSTIN/UIN">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">State Name</label>
+                                        <input type="text" id="consigneeStateNameInput" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">State Code</label>
+                                        <input type="text" id="consigneeStateCodeInput" class="form-control form-control-sm">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delivery -->
+                            <div style="border-left: 3px solid #d97706; padding-left: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-size: 11px; font-weight: 800; color: #d97706;">DELIVERY</span>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.invoiceBuilder.copyBillToDelivery()">
+                                        📋 Same as Bill To
+                                    </button>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" id="deliveryNameInput" class="form-control form-control-sm font-bold" placeholder="M/S. Delivery Site Name">
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="deliveryAddressInput" class="form-control form-control-sm" rows="2" placeholder="Delivery Address"></textarea>
+                                </div>
+                                <div class="form-group-row">
+                                    <div class="form-group">
+                                        <label class="form-label">GSTIN / UIN</label>
+                                        <input type="text" id="deliveryGstinInput" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">State Name & Code</label>
+                                        <div style="display: flex; gap: 4px;">
+                                            <input type="text" id="deliveryStateNameInput" class="form-control form-control-sm" placeholder="State">
+                                            <input type="text" id="deliveryStateCodeInput" class="form-control form-control-sm" style="width: 50px;" placeholder="Code">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Phone(s)</label>
+                                        <input type="text" id="deliveryPhoneInput" class="form-control form-control-sm" placeholder="e.g. 9071111116,9505207172">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Line Items with Item-Level Discount -->
+                        <div class="editor-card">
+                            <div class="editor-card-header">
+                                <span class="editor-card-title">📋 Products & Services (Item Discount Enabled)</span>
+                                <div style="display: flex; gap: 6px;">
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.openCatalogPickerModal()">
+                                        📦 + From Catalog
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="window.invoiceBuilder.addCustomItem()">
+                                        ➕ Add Row
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="overflow-x: auto;">
+                                <table class="line-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>HSN Code</th>
+                                            <th>Description</th>
+                                            <th>UOM</th>
+                                            <th>Qty</th>
+                                            <th class="text-right">Rate (₹)</th>
+                                            <th class="text-center" style="color: #2563eb;">Discount</th>
+                                            <th class="text-right">Amount (₹)</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="invoiceLineItemsBody">
+                                        <!-- Rendered by invoice.js -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: Summary, GST & Freight -->
+                        <div class="editor-card">
+                            <div class="editor-card-header">
+                                <span class="editor-card-title">💰 Tax, Freight & Calculation</span>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">GST Rate (%)</label>
+                                    <input type="number" step="any" min="0" id="invGstRateInput" class="form-control" value="18">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Freight Description</label>
+                                    <input type="text" id="invFreightInput" class="form-control" value="To pay">
                                 </div>
                             </div>
 
                             <div class="totals-summary-card">
-                                <div class="summary-row"><span>Subtotal:</span><strong id="calcSubtotal">$0.00</strong></div>
-                                <div class="summary-row text-success"><span>Discount:</span><strong id="calcDiscount">-$0.00</strong></div>
-                                <div class="summary-row"><span>Tax Total:</span><strong id="calcTax">$0.00</strong></div>
-                                <div class="summary-row"><span>Shipping:</span><strong id="calcShipping">$0.00</strong></div>
-                                <div class="summary-row summary-grand-total"><span>Grand Total:</span><strong id="calcGrandTotal">$0.00</strong></div>
-                                <div class="summary-row summary-balance-due"><span>Balance Due:</span><strong id="calcBalanceDue">$0.00</strong></div>
-                            </div>
-                        </div>
-
-                        <!-- Notes & Terms -->
-                        <div class="editor-card">
-                            <div class="editor-card-header">
-                                <span class="editor-card-title">📝 Notes & Terms</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Customer Notes</label>
-                                <textarea id="invNotesInput" class="form-control" rows="2" placeholder="e.g. Thank you for your business!"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Terms & Conditions</label>
-                                <textarea id="invTermsInput" class="form-control" rows="2" placeholder="e.g. Payment due within 14 days."></textarea>
+                                <div class="summary-row"><span>Sub Total:</span><strong id="calcSubtotal">₹ 1,00,000.00</strong></div>
+                                <div class="summary-row"><span id="calcGstText">GST (18%):</span><strong id="calcGst">₹ 18,000.00</strong></div>
+                                <div class="summary-row"><span>Sub Total w/ GST:</span><strong id="calcSubtotalGst">₹ 1,18,000.00</strong></div>
+                                <div class="summary-row"><span>Round Off:</span><strong id="calcRoundOff">+0.00</strong></div>
+                                <div class="summary-row"><span>Freight:</span><strong id="calcFreight">To pay</strong></div>
+                                <div class="summary-row summary-grand-total"><span>Total Payable:</span><strong id="calcTotalPayable">₹ 1,18,000.00</strong></div>
+                                <div style="font-size: 11px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-color); color: #475569;">
+                                    <strong>Amount in Words:</strong> <span id="calcWords">One Lakh Eighteen Thousand Rupees Only.</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right: Live A4 Printable Canvas -->
+                    <!-- Right: Live Exact Invoice Canvas (Preview & PDF Target) -->
                     <div class="invoice-preview-pane">
                         <div id="invoicePrintArea">
-                            <!-- Rendered in real-time by invoice.js -->
+                            <!-- Live rendered exact replica -->
                         </div>
                     </div>
                 </div>
@@ -247,7 +293,7 @@
                 <header class="page-header">
                     <div>
                         <h1 class="page-header-title">Product & Service Catalog</h1>
-                        <p class="page-header-subtitle">Manage products, pricing, and import spreadsheets</p>
+                        <p class="page-header-subtitle">Manage HSN codes, UOM, rates, and default discounts</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn btn-secondary" onclick="document.getElementById('catalogExcelFileInput').click()">
@@ -265,26 +311,27 @@
                 <div class="table-container">
                     <div class="filter-bar">
                         <div class="filter-left">
-                            <input type="text" id="catalogSearchInput" class="form-control" style="width: 280px;" placeholder="🔍 Search items, SKU, category...">
+                            <input type="text" id="catalogSearchInput" class="form-control" style="width: 280px;" placeholder="🔍 Search description, HSN, category...">
                             <select id="catalogCategoryFilter" class="form-control" style="width: 180px;">
                                 <option value="all">All Categories</option>
                             </select>
                         </div>
                         <div class="filter-right">
-                            <span id="catalogItemCount" class="text-muted" style="font-size: 13px;">0 items</span>
+                            <span id="catalogItemCount" class="text-muted" style="font-size: 12px;">0 items</span>
                         </div>
                     </div>
 
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 120px;">SKU / Code</th>
-                                <th>Item & Description</th>
+                                <th style="width: 110px;">HSN Code</th>
+                                <th>Item Description</th>
                                 <th style="width: 140px;">Category</th>
-                                <th style="width: 80px;">Unit</th>
-                                <th class="text-right" style="width: 120px;">Unit Price</th>
-                                <th class="text-right" style="width: 100px;">Tax Rate</th>
-                                <th class="text-center" style="width: 110px;">Actions</th>
+                                <th style="width: 70px;">UOM</th>
+                                <th class="text-right" style="width: 120px;">Rate (₹)</th>
+                                <th class="text-right" style="width: 90px;">Default Disc</th>
+                                <th class="text-right" style="width: 90px;">GST %</th>
+                                <th class="text-center" style="width: 100px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="catalogTableBody">
@@ -294,12 +341,12 @@
                 </div>
             </section>
 
-            <!-- TAB 3: INVOICE HISTORY -->
+            <!-- TAB 3: SAVED INVOICES -->
             <section id="historyTab" class="tab-pane">
                 <header class="page-header">
                     <div>
-                        <h1 class="page-header-title">Invoice History</h1>
-                        <p class="page-header-subtitle">Saved invoices, payment tracking, and archives</p>
+                        <h1 class="page-header-title">Saved Invoices</h1>
+                        <p class="page-header-subtitle">Track issued proforma & tax invoices</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn btn-primary" onclick="window.switchTab('invoiceTab'); window.invoiceBuilder.resetToNewInvoice();">
@@ -311,7 +358,7 @@
                 <div class="table-container">
                     <div class="filter-bar">
                         <div class="filter-left">
-                            <input type="text" id="historySearchInput" class="form-control" style="width: 280px;" placeholder="🔍 Search by invoice # or client...">
+                            <input type="text" id="historySearchInput" class="form-control" style="width: 280px;" placeholder="🔍 Search by doc # or client...">
                             <select id="historyStatusFilter" class="form-control" style="width: 150px;">
                                 <option value="all">All Statuses</option>
                                 <option value="Draft">Draft</option>
@@ -321,18 +368,18 @@
                             </select>
                         </div>
                         <div class="filter-right">
-                            <span id="historyCountBadge" class="text-muted" style="font-size: 13px;">0 Invoices</span>
+                            <span id="historyCountBadge" class="text-muted" style="font-size: 12px;">0 Invoices</span>
                         </div>
                     </div>
 
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 130px;">Invoice #</th>
-                                <th>Client</th>
+                                <th style="width: 110px;">Doc #</th>
+                                <th>Bill To Client</th>
                                 <th style="width: 110px;">Date</th>
-                                <th style="width: 110px;">Due Date</th>
-                                <th class="text-right" style="width: 120px;">Total</th>
+                                <th style="width: 110px;">Terms</th>
+                                <th class="text-right" style="width: 130px;">Total Payable</th>
                                 <th class="text-center" style="width: 120px;">Status</th>
                                 <th class="text-center" style="width: 110px;">Actions</th>
                             </tr>
@@ -344,12 +391,12 @@
                 </div>
             </section>
 
-            <!-- TAB 4: SETTINGS & BACKUP -->
+            <!-- TAB 4: COMPANY & BANK SETTINGS -->
             <section id="settingsTab" class="tab-pane">
                 <header class="page-header">
                     <div>
-                        <h1 class="page-header-title">Settings & Business Profile</h1>
-                        <p class="page-header-subtitle">Company profile, default terms, currency, and data backups</p>
+                        <h1 class="page-header-title">Company, Bank & QR Settings</h1>
+                        <p class="page-header-subtitle">Information printed on invoice header, footer, and payment QR</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn btn-primary" onclick="window.settingsManager.saveSettings()">
@@ -362,102 +409,109 @@
                     <!-- Company Profile -->
                     <div class="editor-card">
                         <div class="editor-card-header">
-                            <span class="editor-card-title">🏢 Business Information</span>
+                            <span class="editor-card-title">🏢 Company Header Information</span>
                         </div>
                         <div class="form-group-row">
                             <div class="form-group">
-                                <label class="form-label">Business / Trade Name *</label>
-                                <input type="text" id="settingBusinessName" class="form-control" placeholder="Your Business Name">
+                                <label class="form-label">Company Name *</label>
+                                <input type="text" id="settingBusinessName" class="form-control" value="Vikram Power Technologies Pvt. Ltd.">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Tagline / Slogan</label>
-                                <input type="text" id="settingTagline" class="form-control" placeholder="e.g. Professional Consulting">
+                                <label class="form-label">Brand Logo Text</label>
+                                <input type="text" id="settingBrandLogoText" class="form-control" value="VIKCHEM">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Brand Subtitle</label>
+                                <input type="text" id="settingBrandSubtitle" class="form-control" value="INNOVATION FOR NATION">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Company Logo</label>
-                            <div style="display: flex; gap: 14px; align-items: center;">
-                                <img id="settingLogoPreview" src="" alt="Logo" style="max-height: 50px; max-width: 140px; display: none; border-radius: 4px; border: 1px solid var(--border-color);">
+                            <label class="form-label">Optional Custom Logo Image</label>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <img id="settingLogoPreview" src="" alt="Logo" style="max-height: 45px; display: none; border-radius: 4px; border: 1px solid var(--border-color);">
                                 <input type="file" id="settingLogoInput" accept="image/*" class="form-control" style="max-width: 300px;">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Business Address</label>
-                            <textarea id="settingAddress" class="form-control" rows="2" placeholder="Street, City, Country, ZIP"></textarea>
+                            <label class="form-label">Company Registered Address</label>
+                            <input type="text" id="settingAddress" class="form-control" value="39 Industrial Estate, Phase-II, Yamuna Nagar – 135001, Haryana, India">
                         </div>
 
                         <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label">GSTIN / UIN</label>
+                                <input type="text" id="settingGstin" class="form-control" value="06AADCV2496H1Z4">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ARN No.</label>
+                                <input type="text" id="settingArn" class="form-control" value="AA060617009499V">
+                            </div>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label">Official Email</label>
+                                <input type="email" id="settingEmail" class="form-control" value="sales@vptpl.com">
+                            </div>
                             <div class="form-group">
                                 <label class="form-label">Phone Number</label>
-                                <input type="tel" id="settingPhone" class="form-control">
+                                <input type="tel" id="settingPhone" class="form-control" value="+91-99966-30201">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" id="settingEmail" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Website</label>
-                                <input type="text" id="settingWebsite" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Tax ID / Business Registration #</label>
-                            <input type="text" id="settingTaxId" class="form-control" placeholder="e.g. EIN, VAT, GST ID">
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Bank & Payment Instructions (Printed on Invoice)</label>
-                            <textarea id="settingPaymentDetails" class="form-control" rows="3" placeholder="Bank name, IBAN / Account #, Routing, PayPal, etc."></textarea>
                         </div>
                     </div>
 
-                    <!-- Defaults -->
+                    <!-- Bank Details & Payment QR -->
                     <div class="editor-card">
                         <div class="editor-card-header">
-                            <span class="editor-card-title">⚙️ Invoice Defaults & Numbering</span>
+                            <span class="editor-card-title">🏦 Bank Account & UPI QR Code</span>
                         </div>
                         <div class="form-group-row">
                             <div class="form-group">
-                                <label class="form-label">Currency Symbol</label>
-                                <input type="text" id="settingCurrencySymbol" class="form-control" placeholder="$" maxlength="4">
+                                <label class="form-label">Bank Name</label>
+                                <input type="text" id="settingBankName" class="form-control" value="HDFC Bank">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Default Tax Rate (%)</label>
-                                <input type="number" step="any" min="0" id="settingDefaultTaxRate" class="form-control" placeholder="10">
+                                <label class="form-label">Account Name</label>
+                                <input type="text" id="settingAccountName" class="form-control" value="Vikram Power Technologies Pvt. Ltd.">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Invoice Prefix</label>
-                                <input type="text" id="settingInvoicePrefix" class="form-control" placeholder="INV-">
+                                <label class="form-label">A/C Number</label>
+                                <input type="text" id="settingAccountNo" class="form-control" value="50200001507800">
+                            </div>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label">IFSC Code</label>
+                                <input type="text" id="settingIfsc" class="form-control" value="HDFC0002563">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Next Sequence #</label>
-                                <input type="number" id="settingNextInvoiceNum" class="form-control" placeholder="1001">
+                                <label class="form-label">Branch Place</label>
+                                <input type="text" id="settingBranchPlace" class="form-control" value="Yamuna Nagar, Haryana">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">UPI ID (For QR Code)</label>
+                                <input type="text" id="settingUpiId" class="form-control" value="sales@vptpl">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Default Payment Terms</label>
-                            <textarea id="settingDefaultTerms" class="form-control" rows="2"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Default Customer Notes</label>
-                            <textarea id="settingDefaultNotes" class="form-control" rows="2"></textarea>
+                            <label class="form-label">Seal Stamp Text</label>
+                            <input type="text" id="settingCompanySealText" class="form-control" value="Vikram Power Technologies Pvt. Ltd.">
                         </div>
                     </div>
 
-                    <!-- Complete Data Backup & Restore -->
+                    <!-- Data Backup & Restore -->
                     <div class="editor-card">
                         <div class="editor-card-header">
-                            <span class="editor-card-title">💾 Backup & Restore (Zero Cloud, 100% Local)</span>
+                            <span class="editor-card-title">💾 Local Data Backup & Restore</span>
                         </div>
-                        <p class="text-muted" style="font-size: 13px; margin-bottom: 14px;">
-                            Keep complete control over your data. Download a complete backup copy of your catalog, past invoices, and settings as a local JSON file, or restore a backup.
+                        <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
+                            Zero cloud dependencies. Download a complete JSON backup of your catalog and invoices to your disk, or restore from a previously exported backup file.
                         </p>
-                        <div style="display: flex; gap: 12px; align-items: center;">
+                        <div style="display: flex; gap: 10px;">
                             <button class="btn btn-secondary" onclick="window.settingsManager.exportFullBackup()">
                                 📤 Download Full Backup (.json)
                             </button>
@@ -472,54 +526,62 @@
         </main>
     </div>
 
-    <!-- Hidden file inputs -->
+    <!-- Hidden file input for Excel -->
     <input type="file" id="catalogExcelFileInput" accept=".xlsx,.xls,.csv" style="display: none;">
 
     <!-- MODAL: Add / Edit Catalog Item -->
     <dialog id="catalogItemModal">
         <form id="catalogItemForm" method="dialog" onsubmit="event.preventDefault(); window.catalogManager.saveItemFromForm();">
             <div class="modal-header">
-                <h3 class="modal-title" id="catalogModalTitle">Add Catalog Item</h3>
+                <h3 class="modal-title" id="catalogModalTitle">Add Catalog Product</h3>
                 <button type="button" class="btn-icon" onclick="document.getElementById('catalogItemModal').close()">✕</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="catalogItemId">
                 <div class="form-group-row">
                     <div class="form-group">
+                        <label class="form-label">HSN Code *</label>
+                        <input type="text" id="itemHsn" class="form-control font-mono" placeholder="85469010" required>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">SKU / Code</label>
-                        <input type="text" id="itemSku" class="form-control" placeholder="e.g. IT-101">
+                        <input type="text" id="itemSku" class="form-control" placeholder="11KV-IND-35">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Category</label>
-                        <input type="text" id="itemCategory" class="form-control" placeholder="e.g. Services, Hardware">
+                        <input type="text" id="itemCategory" class="form-control" placeholder="Terminations, Hardware">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Item / Service Name *</label>
-                    <input type="text" id="itemName" class="form-control" placeholder="Name of product or service" required>
+                    <label class="form-label">Item / Service Description *</label>
+                    <input type="text" id="itemName" class="form-control" placeholder="11kv- 3C X 35 INDOOR" required>
                 </div>
                 <div class="form-group-row">
                     <div class="form-group">
-                        <label class="form-label">Unit Price ($) *</label>
-                        <input type="number" step="0.01" min="0" id="itemPrice" class="form-control" placeholder="0.00" required>
+                        <label class="form-label">UOM (Unit)</label>
+                        <input type="text" id="itemUnit" class="form-control" placeholder="Nos, Sets, Mtr">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Unit of Measure</label>
-                        <input type="text" id="itemUnit" class="form-control" placeholder="pcs, hours, etc.">
+                        <label class="form-label">Rate (₹) *</label>
+                        <input type="number" step="0.01" min="0" id="itemPrice" class="form-control" placeholder="760.00" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tax Rate (%)</label>
-                        <input type="number" step="any" min="0" max="100" id="itemTaxRate" class="form-control" placeholder="10">
+                        <label class="form-label">Default Disc (%)</label>
+                        <input type="number" step="any" min="0" id="itemDiscount" class="form-control" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GST Rate (%)</label>
+                        <input type="number" step="any" min="0" id="itemTaxRate" class="form-control" value="18">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Description / Details</label>
-                    <textarea id="itemDescription" class="form-control" rows="2" placeholder="Optional details or specifications"></textarea>
+                    <label class="form-label">Additional Specifications</label>
+                    <textarea id="itemDescription" class="form-control" rows="2" placeholder="Optional details or technical specs"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="document.getElementById('catalogItemModal').close()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Item</button>
+                <button type="submit" class="btn btn-primary">Save Product</button>
             </div>
         </form>
     </dialog>
@@ -531,23 +593,20 @@
             <button type="button" class="btn-icon" onclick="window.catalogManager.closeImportModal()">✕</button>
         </div>
         <div class="modal-body">
-            <div style="margin-bottom: 14px; font-size: 13px;">
+            <div style="margin-bottom: 12px; font-size: 12px;">
                 <span>File: <strong id="previewFileName">filename.xlsx</strong> — </span>
                 <span id="previewTotalRows" class="text-success font-semibold">0 items detected</span>
             </div>
-            <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
-                Below is a preview of the first 5 records parsed from your spreadsheet. Verify columns and choose an import mode:
-            </p>
-            <div style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 16px;">
-                <table class="data-table" style="font-size: 12px;">
+            <div style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 14px;">
+                <table class="data-table" style="font-size: 11px;">
                     <thead>
                         <tr>
-                            <th>SKU</th>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Unit</th>
-                            <th class="text-right">Price</th>
-                            <th class="text-right">Tax</th>
+                            <th>HSN</th>
+                            <th>Description</th>
+                            <th>UOM</th>
+                            <th class="text-right">Rate (₹)</th>
+                            <th class="text-right">Disc %</th>
+                            <th class="text-right">GST %</th>
                         </tr>
                     </thead>
                     <tbody id="importPreviewTableBody">
@@ -557,27 +616,29 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="window.catalogManager.closeImportModal()">Cancel</button>
-            <button type="button" class="btn btn-danger" onclick="window.catalogManager.confirmImport('replace')">Replace Existing Catalog</button>
-            <button type="button" class="btn btn-primary" onclick="window.catalogManager.confirmImport('append')">+ Append to Existing Catalog</button>
+            <button type="button" class="btn btn-danger" onclick="window.catalogManager.confirmImport('replace')">Replace Existing</button>
+            <button type="button" class="btn btn-primary" onclick="window.catalogManager.confirmImport('append')">+ Append to Catalog</button>
         </div>
     </dialog>
 
-    <!-- MODAL: Fast Catalog Picker Inside Invoice Tab -->
-    <dialog id="catalogPickerModal" style="max-width: 650px;">
+    <!-- MODAL: Fast Catalog Picker for Line Items -->
+    <dialog id="catalogPickerModal" style="max-width: 700px;">
         <div class="modal-header">
             <h3 class="modal-title">Select Item from Catalog</h3>
             <button type="button" class="btn-icon" onclick="document.getElementById('catalogPickerModal').close()">✕</button>
         </div>
         <div class="modal-body">
-            <input type="text" id="catalogPickerSearch" class="form-control mb-1" placeholder="🔍 Type to filter catalog items...">
-            <div style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-top: 12px;">
-                <table class="data-table" style="font-size: 12px;">
+            <input type="text" id="catalogPickerSearch" class="form-control mb-1" placeholder="🔍 Type HSN, description, or category to filter...">
+            <div style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-top: 10px;">
+                <table class="data-table" style="font-size: 11px;">
                     <thead>
                         <tr>
-                            <th style="width: 100px;">SKU</th>
-                            <th>Item Name</th>
-                            <th class="text-right" style="width: 110px;">Price</th>
-                            <th class="text-center" style="width: 80px;">Action</th>
+                            <th style="width: 90px;">HSN</th>
+                            <th>Description</th>
+                            <th style="width: 60px;">UOM</th>
+                            <th class="text-right" style="width: 100px;">Rate (₹)</th>
+                            <th class="text-right" style="width: 70px;">Disc %</th>
+                            <th class="text-center" style="width: 70px;">Action</th>
                         </tr>
                     </thead>
                     <tbody id="catalogPickerTableBody">
@@ -593,9 +654,10 @@
     <!-- Toast Notifications Container -->
     <div id="toastContainer"></div>
 
-    <!-- Scripts (100% Local & Offline) -->
+    <!-- 100% Offline Scripts -->
     <script src="assets/js/xlsx.full.min.js"></script>
     <script src="assets/js/html2pdf.bundle.min.js"></script>
+    <script src="assets/js/qrcode.min.js"></script>
     <script src="assets/js/storage.js"></script>
     <script src="assets/js/catalog.js"></script>
     <script src="assets/js/invoice.js"></script>

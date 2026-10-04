@@ -1,104 +1,115 @@
 /**
  * storage.js - Local Storage & Data Management for Invoice Generator
  * 100% offline, persistent local storage with zero cloud dependencies.
+ * Tailored for GST / Proforma & Tax Invoicing.
  */
 
 const STORAGE_KEYS = {
-    CATALOG: 'invoice_gen_catalog',
-    INVOICES: 'invoice_gen_invoices',
-    SETTINGS: 'invoice_gen_settings',
-    CLIENTS: 'invoice_gen_clients'
+    CATALOG: 'invoice_gen_catalog_v2',
+    INVOICES: 'invoice_gen_invoices_v2',
+    SETTINGS: 'invoice_gen_settings_v2',
+    CLIENTS: 'invoice_gen_clients_v2'
 };
 
 const DEFAULT_SETTINGS = {
-    businessName: 'Acme Solutions Inc.',
-    tagline: 'Professional Services & Consulting',
-    logo: '',
-    address: '123 Business Avenue, Suite 400\nNew York, NY 10001\nUnited States',
-    phone: '+1 (555) 123-4567',
-    email: 'billing@acmesolutions.com',
-    website: 'www.acmesolutions.com',
-    taxId: 'US-987654321',
-    paymentDetails: 'Bank: JPMorgan Chase\nAccount Name: Acme Solutions Inc.\nAccount #: 9876543210\nRouting / SWIFT: CHASEUS33',
-    defaultTerms: 'Payment is due within 14 days of invoice date. Thank you for your business!',
-    defaultNotes: 'All services rendered and products delivered per agreed specifications.',
-    defaultTaxRate: 10,
-    currencySymbol: '$',
-    currencyCode: 'USD',
-    nextInvoiceNumber: 1001,
-    invoicePrefix: 'INV-'
+    businessName: 'Vikram Power Technologies Pvt. Ltd.',
+    brandSubtitle: 'INNOVATION FOR NATION',
+    brandLogoText: 'VIKCHEM',
+    logo: '', // Base64 image if uploaded
+    address: '39 Industrial Estate, Phase-II, Yamuna Nagar – 135001, Haryana, India',
+    gstin: '06AADCV2496H1Z4',
+    arn: 'AA060617009499V',
+    email: 'sales@vptpl.com',
+    phone: '+91-99966-30201',
+    website: 'www.vptpl.com',
+    bankName: 'HDFC Bank',
+    accountName: 'Vikram Power Technologies Pvt. Ltd.',
+    accountNo: '50200001507800',
+    ifsc: 'HDFC0002563',
+    branchPlace: 'Yamuna Nagar, Haryana',
+    upiId: 'sales@vptpl',
+    defaultGstRate: 18,
+    currencySymbol: '₹',
+    currencyCode: 'INR',
+    defaultDocTitle: 'Proforma Invoice',
+    nextInvoiceNumber: 210,
+    invoicePrefix: 'No. ',
+    defaultTerms: 'As per PI',
+    companySealText: 'Vikram Power Technologies Pvt. Ltd.'
 };
 
 const DEFAULT_CATALOG = [
     {
         id: 'item-1',
-        sku: 'SRV-001',
-        name: 'Web Application Development',
-        category: 'Services',
-        unit: 'hours',
-        price: 85.00,
-        taxRate: 10.0,
-        description: 'Custom full-stack web application development and API integration'
+        sku: '11KV-IND-35',
+        hsn: '85469010',
+        name: '11kv- 3C X 35 INDOOR',
+        category: 'Cable Terminations',
+        unit: 'Nos',
+        price: 760.00,
+        taxRate: 18.0,
+        defaultDiscount: 0,
+        description: '11KV Heat Shrinkable Indoor Cable Jointing Kit'
     },
     {
         id: 'item-2',
-        sku: 'SRV-002',
-        name: 'UI/UX Design & Prototyping',
-        category: 'Services',
-        unit: 'hours',
-        price: 75.00,
-        taxRate: 10.0,
-        description: 'Interactive wireframes, user testing, and high-fidelity Figma components'
+        sku: '11KV-OUT-35',
+        hsn: '85469010',
+        name: '11kv- 3C X 35 OUTDOOR',
+        category: 'Cable Terminations',
+        unit: 'Nos',
+        price: 860.00,
+        taxRate: 18.0,
+        defaultDiscount: 0,
+        description: '11KV Heat Shrinkable Outdoor Cable Jointing Kit'
     },
     {
         id: 'item-3',
-        sku: 'SRV-003',
-        name: 'Cloud Infrastructure Consulting',
-        category: 'Consulting',
-        unit: 'hours',
-        price: 120.00,
-        taxRate: 10.0,
-        description: 'Cloud architecture, automated pipelines, security hardening'
+        sku: '11KV-POST-INS',
+        hsn: '85469010',
+        name: '11KV POST INSULATOR',
+        category: 'Insulators',
+        unit: 'Nos',
+        price: 130.00,
+        taxRate: 18.0,
+        defaultDiscount: 0,
+        description: 'High creepage solid core post insulator'
     },
     {
         id: 'item-4',
-        sku: 'HW-101',
-        name: 'Dell UltraSharp 27" 4K Monitor',
-        category: 'Hardware',
-        unit: 'units',
-        price: 450.00,
-        taxRate: 8.5,
-        description: 'IPS Black panel, 98% DCI-P3 color gamut, USB-C 90W power delivery'
+        sku: 'LT-PIN-INS',
+        hsn: '85469010',
+        name: 'LT 1.1 KV PIN INSULATOR',
+        category: 'Insulators',
+        unit: 'Nos',
+        price: 80.00,
+        taxRate: 18.0,
+        defaultDiscount: 0,
+        description: 'Porcelain pin insulator for distribution networks'
     },
     {
         id: 'item-5',
-        sku: 'HW-102',
-        name: 'Logitech MX Master 3S Mouse',
-        category: 'Hardware',
-        unit: 'units',
-        price: 99.00,
-        taxRate: 8.5,
-        description: 'Ergonomic performance wireless mouse with MagSpeed scrolling'
+        sku: '11KV-VCB-630',
+        hsn: '85352100',
+        name: '11KV Vacuum Circuit Breaker (VCB) 630A',
+        category: 'Switchgear',
+        unit: 'Sets',
+        price: 45000.00,
+        taxRate: 18.0,
+        defaultDiscount: 5,
+        description: 'Indoor drawout type vacuum circuit breaker panel with relays'
     },
     {
         id: 'item-6',
-        sku: 'SFT-201',
-        name: 'Annual Software License',
-        category: 'Software',
-        unit: 'licenses',
-        price: 240.00,
-        taxRate: 0.0,
-        description: 'Per-user annual enterprise software seat license'
-    },
-    {
-        id: 'item-7',
-        sku: 'MNT-301',
-        name: 'Monthly Maintenance & Support',
-        category: 'Maintenance',
-        unit: 'months',
-        price: 350.00,
-        taxRate: 10.0,
-        description: 'Ongoing server updates, security patches, uptime monitoring, and priority support'
+        sku: '11KV-CBL-185',
+        hsn: '85446090',
+        name: '11KV XLPE Armoured HT Cable (3C x 185)',
+        category: 'Cables',
+        unit: 'Mtr',
+        price: 1450.00,
+        taxRate: 18.0,
+        defaultDiscount: 2,
+        description: 'Heavy duty aluminium conductor screened armoured cable'
     }
 ];
 
@@ -139,7 +150,8 @@ class StorageManager {
 
     incrementInvoiceNumber() {
         const settings = this.getSettings();
-        settings.nextInvoiceNumber = (parseInt(settings.nextInvoiceNumber, 10) || 1000) + 1;
+        const current = parseInt(settings.nextInvoiceNumber, 10) || 210;
+        settings.nextInvoiceNumber = current + 1;
         this.saveSettings(settings);
         return settings.nextInvoiceNumber;
     }
@@ -164,11 +176,13 @@ class StorageManager {
         const newItem = {
             id: 'item-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
             sku: (item.sku || '').trim(),
+            hsn: (item.hsn || item.hsnCode || '85469010').trim(),
             name: (item.name || '').trim(),
             category: (item.category || 'General').trim(),
-            unit: (item.unit || 'pcs').trim(),
-            price: parseFloat(item.price) || 0,
-            taxRate: parseFloat(item.taxRate) || 0,
+            unit: (item.unit || item.uom || 'Nos').trim(),
+            price: parseFloat(item.price || item.rate) || 0,
+            taxRate: parseFloat(item.taxRate) || 18,
+            defaultDiscount: parseFloat(item.defaultDiscount || item.discount) || 0,
             description: (item.description || '').trim()
         };
         catalog.push(newItem);
@@ -183,8 +197,9 @@ class StorageManager {
             catalog[index] = {
                 ...catalog[index],
                 ...updatedFields,
-                price: parseFloat(updatedFields.price) || 0,
-                taxRate: parseFloat(updatedFields.taxRate) || 0
+                price: parseFloat(updatedFields.price || updatedFields.rate) || 0,
+                taxRate: parseFloat(updatedFields.taxRate) || 18,
+                defaultDiscount: parseFloat(updatedFields.defaultDiscount || updatedFields.discount) || 0
             };
             this.saveCatalog(catalog);
             return catalog[index];
@@ -237,9 +252,8 @@ class StorageManager {
 
         this.saveInvoices(invoices);
 
-        // Also track client in clients list if has name
-        if (invoice.client && invoice.client.name) {
-            this.saveClient(invoice.client);
+        if (invoice.billTo && invoice.billTo.name) {
+            this.saveClient(invoice.billTo);
         }
 
         return invoice;
@@ -294,7 +308,7 @@ class StorageManager {
     // --- Backup & Restore ---
     exportAllData() {
         return {
-            version: '1.0',
+            version: '2.0',
             exportDate: new Date().toISOString(),
             settings: this.getSettings(),
             catalog: this.getCatalog(),
