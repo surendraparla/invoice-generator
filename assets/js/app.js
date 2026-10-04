@@ -28,6 +28,38 @@ window.showToast = function(message, type = 'info') {
     }, 3500);
 };
 
+// Global toggle preview pane helper (Expands UI across full width to the right)
+window.togglePreviewPane = function() {
+    const container = document.querySelector('.invoice-split-container');
+    const btn = document.getElementById('togglePreviewBtn');
+    if (!container) return;
+
+    const isHidden = container.classList.toggle('preview-hidden');
+
+    if (btn) {
+        if (isHidden) {
+            btn.innerHTML = '👁️ Show Preview';
+            btn.classList.add('btn-primary');
+            btn.classList.remove('btn-secondary');
+            btn.title = 'Show invoice sheet preview';
+            window.showToast('Preview hidden. Editor expanded full width!', 'info');
+        } else {
+            btn.innerHTML = '👁️ Hide Preview';
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+            btn.title = 'Hide preview and expand editor to full width';
+            // Re-render preview calculation & QR to make sure it's fresh
+            if (window.invoiceBuilder) {
+                window.invoiceBuilder.calculateAndRender();
+            }
+        }
+    }
+
+    try {
+        localStorage.setItem('invoice_preview_hidden', isHidden ? 'true' : 'false');
+    } catch (e) {}
+};
+
 // Global tab switcher
 window.switchTab = function(tabId) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -404,4 +436,18 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.value = '';
         });
     }
+
+    // Restore preview hidden preference if previously set
+    try {
+        if (localStorage.getItem('invoice_preview_hidden') === 'true') {
+            const container = document.querySelector('.invoice-split-container');
+            const btn = document.getElementById('togglePreviewBtn');
+            if (container) container.classList.add('preview-hidden');
+            if (btn) {
+                btn.innerHTML = '👁️ Show Preview';
+                btn.classList.add('btn-primary');
+                btn.classList.remove('btn-secondary');
+            }
+        }
+    } catch (e) {}
 });

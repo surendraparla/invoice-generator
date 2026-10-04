@@ -42,8 +42,8 @@
             </div>
 
             <div class="sidebar-footer">
-                <span class="badge-offline">100% Offline & Local</span>
-                <span>Zero cloud, all data on device</span>
+                <span style="font-weight: 600; color: #94a3b8;">InvoiceMaster</span>
+                <span>Desktop Edition</span>
             </div>
         </aside>
 
@@ -57,6 +57,9 @@
                         <p class="page-header-subtitle">Build Indian GST Proforma & Tax Invoices with item discounts</p>
                     </div>
                     <div class="header-actions">
+                        <button id="togglePreviewBtn" class="btn btn-secondary" onclick="window.togglePreviewPane()" title="Hide preview and expand editor to full width">
+                            👁️ Hide Preview
+                        </button>
                         <button class="btn btn-secondary" onclick="window.invoiceBuilder.resetToNewInvoice()">
                             ➕ New Invoice
                         </button>
@@ -655,7 +658,7 @@
     <!-- Toast Notifications Container -->
     <div id="toastContainer"></div>
 
-    <!-- 100% Offline Scripts -->
+    <!-- Offline Scripts -->
     <script src="assets/js/xlsx.full.min.js"></script>
     <script src="assets/js/html2pdf.bundle.min.js"></script>
     <script src="assets/js/qrcode.min.js"></script>

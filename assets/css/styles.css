@@ -289,12 +289,13 @@ body {
 .form-control-sm { padding: 4px 8px; font-size: 11px; }
 textarea.form-control { resize: vertical; font-family: inherit; }
 
-/* Invoice Split View */
+/* Invoice Split View & Full-Width Expanded Mode */
 .invoice-split-container {
     display: flex;
     flex: 1;
     overflow: hidden;
     height: calc(100vh - 65px);
+    transition: all 0.25s ease;
 }
 
 .invoice-editor-pane {
@@ -304,6 +305,7 @@ textarea.form-control { resize: vertical; font-family: inherit; }
     background-color: #ffffff;
     overflow-y: auto;
     padding: 18px;
+    transition: width 0.25s ease, padding 0.25s ease;
 }
 
 .invoice-preview-pane {
@@ -314,6 +316,26 @@ textarea.form-control { resize: vertical; font-family: inherit; }
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    transition: all 0.25s ease;
+}
+
+/* When preview is hidden, expand the editor UI across the entire screen to the right */
+.invoice-split-container.preview-hidden .invoice-preview-pane {
+    display: none !important;
+}
+
+.invoice-split-container.preview-hidden .invoice-editor-pane {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    border-right: none !important;
+    padding: 24px 40px;
+}
+
+.invoice-split-container.preview-hidden .editor-card {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .editor-card {
