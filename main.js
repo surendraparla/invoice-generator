@@ -15,6 +15,7 @@ function createWindow() {
         minWidth: 1050,
         minHeight: 700,
         title: 'InvoiceMaster - Desktop Invoice Generator',
+        icon: path.join(__dirname, 'assets/icons/icon-256.png'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
