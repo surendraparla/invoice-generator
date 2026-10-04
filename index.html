@@ -77,7 +77,7 @@
 
                 <div class="invoice-split-container">
                     <!-- Left: Invoice Editor Controls -->
-                    <div class="invoice-editor-pane">
+                    <div class="invoice-editor-pane" id="invoiceEditorPane">
                         <!-- Card 1: Document Details & Dispatch -->
                         <div class="editor-card">
                             <div class="editor-card-header">
@@ -283,8 +283,13 @@
                         </div>
                     </div>
 
+                    <!-- Draggable Sliding Divider Bar -->
+                    <div class="split-divider" id="splitDivider" title="Drag to slide and resize panes. Double-click to toggle full width.">
+                        <div class="divider-handle"></div>
+                    </div>
+
                     <!-- Right: Live Exact Invoice Canvas (Preview & PDF Target) -->
-                    <div class="invoice-preview-pane">
+                    <div class="invoice-preview-pane" id="invoicePreviewPane">
                         <div id="invoicePrintArea">
                             <!-- Live rendered exact replica -->
                         </div>
@@ -668,32 +673,132 @@
     <script src="assets/js/app.js?v=2"></script>
 
     <script>
-    // Bulletproof inline toggle preview definition
-    window.togglePreviewPane = function() {
+    (function() {
         var container = document.querySelector('.invoice-split-container');
+        var editorPane = document.getElementById('invoiceEditorPane');
+        var previewPane = document.getElementById('invoicePreviewPane');
+        var divider = document.getElementById('splitDivider');
         var btn = document.getElementById('togglePreviewBtn');
-        if (!container) return;
 
-        var isHidden = container.classList.toggle('preview-hidden');
+        var isDragging = false;
+        var defaultPct = 48; // default 48% split
 
-        if (btn) {
-            if (isHidden) {
-                btn.innerHTML = '👁️ Show Preview';
-                btn.className = 'btn btn-primary';
-                btn.title = 'Show invoice sheet preview';
-                if (window.showToast) window.showToast('Preview hidden. Editor expanded full width!', 'info');
+        function updateUI(pct) {
+            if (!container || !editorPane || !previewPane) return;
+
+            if (pct >= 95) {
+                // Minimize preview completely
+                container.classList.add('preview-hidden');
+                editorPane.style.width = 'calc(100% - 8px)';
+                editorPane.style.flex = '1 1 100%';
+                if (btn) {
+                    btn.innerHTML = '👁️ Show Preview';
+                    btn.className = 'btn btn-primary';
+                    btn.title = 'Show split invoice preview';
+                }
             } else {
-                btn.innerHTML = '👁️ Hide Preview';
-                btn.className = 'btn btn-secondary';
-                btn.title = 'Hide preview and expand editor to full width';
-                if (window.invoiceBuilder) window.invoiceBuilder.calculateAndRender();
+                container.classList.remove('preview-hidden');
+                var clamped = Math.max(28, Math.min(90, pct));
+                editorPane.style.width = clamped + '%';
+                editorPane.style.flex = '0 0 ' + clamped + '%';
+                if (btn) {
+                    btn.innerHTML = '👁️ Hide Preview';
+                    btn.className = 'btn btn-secondary';
+                    btn.title = 'Hide preview and expand editor to full width';
+                }
             }
         }
 
-        try {
-            localStorage.setItem('invoice_preview_hidden', isHidden ? 'true' : 'false');
-        } catch (e) {}
-    };
+        // Global button toggle
+        window.togglePreviewPane = function() {
+            var isCurrentlyHidden = container && container.classList.contains('preview-hidden');
+            if (isCurrentlyHidden) {
+                // Restore split
+                var saved = parseFloat(localStorage.getItem('invoice_editor_pct')) || defaultPct;
+                if (saved >= 95) saved = defaultPct;
+                updateUI(saved);
+                localStorage.setItem('invoice_editor_pct', saved);
+                if (window.invoiceBuilder) window.invoiceBuilder.calculateAndRender();
+            } else {
+                // Maximize editor, minimize preview
+                updateUI(100);
+                localStorage.setItem('invoice_editor_pct', '100');
+                if (window.showToast) window.showToast('Preview minimized. Editor expanded to full width!', 'info');
+            }
+        };
+
+        // Initialize from saved preference
+        var savedPct = parseFloat(localStorage.getItem('invoice_editor_pct'));
+        if (!isNaN(savedPct)) {
+            updateUI(savedPct);
+        }
+
+        if (!divider) return;
+
+        // Mouse Drag Handlers
+        divider.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            document.body.classList.add('is-resizing');
+            divider.classList.add('is-dragging');
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging || !container) return;
+            var rect = container.getBoundingClientRect();
+            var offsetX = e.clientX - rect.left;
+            var pct = (offsetX / rect.width) * 100;
+
+            if (pct > 92) {
+                pct = 100; // Snap to full width
+            }
+
+            updateUI(pct);
+            localStorage.setItem('invoice_editor_pct', pct.toFixed(1));
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                document.body.classList.remove('is-resizing');
+                divider.classList.remove('is-dragging');
+                if (window.invoiceBuilder && !container.classList.contains('preview-hidden')) {
+                    window.invoiceBuilder.calculateAndRender();
+                }
+            }
+        });
+
+        // Touch Drag Handlers (Trackpad / Touch)
+        divider.addEventListener('touchstart', function(e) {
+            isDragging = true;
+            document.body.classList.add('is-resizing');
+            divider.classList.add('is-dragging');
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isDragging || !container || !e.touches[0]) return;
+            var rect = container.getBoundingClientRect();
+            var offsetX = e.touches[0].clientX - rect.left;
+            var pct = (offsetX / rect.width) * 100;
+
+            if (pct > 92) pct = 100;
+            updateUI(pct);
+            localStorage.setItem('invoice_editor_pct', pct.toFixed(1));
+        }, { passive: true });
+
+        document.addEventListener('touchend', function() {
+            if (isDragging) {
+                isDragging = false;
+                document.body.classList.remove('is-resizing');
+                divider.classList.remove('is-dragging');
+            }
+        });
+
+        // Double-click divider to quickly toggle between 50% split and 100% full width
+        divider.addEventListener('dblclick', function() {
+            window.togglePreviewPane();
+        });
+    })();
     </script>
 </body>
 </html>

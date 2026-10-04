@@ -299,27 +299,55 @@ textarea.form-control { resize: vertical; font-family: inherit; }
 }
 
 .invoice-editor-pane {
-    width: 46%;
-    min-width: 440px;
-    border-right: 1px solid var(--border-color);
+    width: 48%;
+    min-width: 380px;
     background-color: #ffffff;
     overflow-y: auto;
     padding: 18px;
-    transition: width 0.25s ease, padding 0.25s ease;
+    flex-shrink: 0;
+}
+
+/* Draggable Splitter Divider Bar */
+.split-divider {
+    width: 8px;
+    background-color: #cbd5e1;
+    cursor: col-resize;
+    position: relative;
+    user-select: none;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+}
+
+.split-divider:hover,
+.split-divider.is-dragging {
+    background-color: var(--primary);
+}
+
+.divider-handle {
+    width: 3px;
+    height: 36px;
+    border-radius: 2px;
+    background-color: #ffffff;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
 }
 
 .invoice-preview-pane {
     flex: 1;
+    min-width: 0;
     background-color: #94a3b8;
     overflow-y: auto;
     padding: 24px 18px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    transition: all 0.25s ease;
 }
 
-/* When preview is hidden, expand the editor UI across the entire screen to the right */
+/* When preview is hidden / minimized completely to the right */
 .invoice-split-container.preview-hidden .invoice-preview-pane {
     display: none !important;
     width: 0 !important;
@@ -327,9 +355,18 @@ textarea.form-control { resize: vertical; font-family: inherit; }
     flex: 0 0 0% !important;
 }
 
+.invoice-split-container.preview-hidden .split-divider {
+    cursor: pointer;
+    background-color: #e2e8f0;
+}
+
+.invoice-split-container.preview-hidden .split-divider:hover {
+    background-color: var(--primary);
+}
+
 .invoice-split-container.preview-hidden .invoice-editor-pane {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: calc(100% - 8px) !important;
+    max-width: calc(100% - 8px) !important;
     min-width: 100% !important;
     flex: 1 1 100% !important;
     border-right: none !important;
@@ -339,6 +376,21 @@ textarea.form-control { resize: vertical; font-family: inherit; }
 .invoice-split-container.preview-hidden .editor-card {
     max-width: 100% !important;
     width: 100% !important;
+}
+
+/* Body dragging state */
+body.is-resizing {
+    cursor: col-resize !important;
+    user-select: none !important;
+}
+
+body.is-resizing * {
+    user-select: none !important;
+    pointer-events: none !important;
+}
+
+body.is-resizing .split-divider {
+    pointer-events: auto !important;
 }
 
 .editor-card {
