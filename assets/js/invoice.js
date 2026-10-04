@@ -453,6 +453,9 @@ class InvoiceBuilder {
         this.renderLineItemsEditor(totals);
         this.renderTotalsSummary(totals);
         this.renderInvoicePreview(totals);
+        if (window.updatePreviewScaling) {
+            window.updatePreviewScaling();
+        }
     }
 
     renderLineItemsEditor(totals) {

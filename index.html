@@ -290,6 +290,14 @@
 
                     <!-- Right: Live Exact Invoice Canvas (Preview & PDF Target) -->
                     <div class="invoice-preview-pane" id="invoicePreviewPane">
+                        <!-- Floating Zoom & Fit Toolbar -->
+                        <div class="preview-toolbar" id="previewToolbar">
+                            <button type="button" class="zoom-btn" onclick="window.adjustZoom(-0.1)" title="Zoom Out">−</button>
+                            <button type="button" class="zoom-btn zoom-btn-text" id="zoomModeBtn" onclick="window.toggleAutoFit()" title="Toggle Auto-Fit to Width">Fit Width</button>
+                            <button type="button" class="zoom-btn" onclick="window.adjustZoom(0.1)" title="Zoom In">+</button>
+                            <span class="zoom-level-text" id="zoomLevelDisplay">100%</span>
+                        </div>
+
                         <div id="invoicePrintArea">
                             <!-- Live rendered exact replica -->
                         </div>
@@ -682,6 +690,64 @@
 
         var isDragging = false;
         var defaultPct = 48; // default 48% split
+        var autoFitMode = true;
+        var currentZoom = 1.0;
+
+        function updatePreviewScaling() {
+            var sheet = document.querySelector('.exact-invoice-sheet');
+            var printArea = document.getElementById('invoicePrintArea');
+            var zoomText = document.getElementById('zoomLevelDisplay');
+            var zoomBtn = document.getElementById('zoomModeBtn');
+
+            if (!previewPane || !sheet || !printArea) return;
+
+            var sheetWidth = 794;
+            var availableWidth = previewPane.clientWidth - 32;
+
+            if (autoFitMode) {
+                if (availableWidth < sheetWidth && availableWidth > 100) {
+                    currentZoom = availableWidth / sheetWidth;
+                } else {
+                    currentZoom = 1.0;
+                }
+                if (zoomBtn) zoomBtn.textContent = 'Fit Width';
+            } else {
+                if (zoomBtn) zoomBtn.textContent = '100%';
+            }
+
+            if (zoomText) {
+                zoomText.textContent = Math.round(currentZoom * 100) + '%';
+            }
+
+            var sheetHeight = sheet.offsetHeight || 1123;
+
+            if (currentZoom < 0.99 || currentZoom > 1.01) {
+                sheet.style.transform = 'scale(' + currentZoom + ')';
+                sheet.style.transformOrigin = 'top center';
+                printArea.style.width = (sheetWidth * currentZoom) + 'px';
+                printArea.style.height = (sheetHeight * currentZoom + 30) + 'px';
+            } else {
+                sheet.style.transform = 'none';
+                printArea.style.width = sheetWidth + 'px';
+                printArea.style.height = 'auto';
+            }
+        }
+
+        window.updatePreviewScaling = updatePreviewScaling;
+
+        window.toggleAutoFit = function() {
+            autoFitMode = !autoFitMode;
+            if (!autoFitMode) {
+                currentZoom = 1.0;
+            }
+            updatePreviewScaling();
+        };
+
+        window.adjustZoom = function(delta) {
+            autoFitMode = false;
+            currentZoom = Math.max(0.25, Math.min(1.8, currentZoom + delta));
+            updatePreviewScaling();
+        };
 
         function updateUI(pct) {
             if (!container || !editorPane || !previewPane) return;
@@ -706,6 +772,7 @@
                     btn.className = 'btn btn-secondary';
                     btn.title = 'Hide preview and expand editor to full width';
                 }
+                setTimeout(updatePreviewScaling, 10);
             }
         }
 
@@ -713,14 +780,13 @@
         window.togglePreviewPane = function() {
             var isCurrentlyHidden = container && container.classList.contains('preview-hidden');
             if (isCurrentlyHidden) {
-                // Restore split
                 var saved = parseFloat(localStorage.getItem('invoice_editor_pct')) || defaultPct;
                 if (saved >= 95) saved = defaultPct;
                 updateUI(saved);
                 localStorage.setItem('invoice_editor_pct', saved);
                 if (window.invoiceBuilder) window.invoiceBuilder.calculateAndRender();
+                setTimeout(updatePreviewScaling, 50);
             } else {
-                // Maximize editor, minimize preview
                 updateUI(100);
                 localStorage.setItem('invoice_editor_pct', '100');
                 if (window.showToast) window.showToast('Preview minimized. Editor expanded to full width!', 'info');
@@ -731,6 +797,18 @@
         var savedPct = parseFloat(localStorage.getItem('invoice_editor_pct'));
         if (!isNaN(savedPct)) {
             updateUI(savedPct);
+        } else {
+            updateUI(defaultPct);
+        }
+
+        // ResizeObserver on preview pane for continuous auto-fit
+        if (window.ResizeObserver && previewPane) {
+            var ro = new ResizeObserver(function() {
+                if (autoFitMode && !container.classList.contains('preview-hidden')) {
+                    updatePreviewScaling();
+                }
+            });
+            ro.observe(previewPane);
         }
 
         if (!divider) return;
@@ -750,11 +828,12 @@
             var pct = (offsetX / rect.width) * 100;
 
             if (pct > 92) {
-                pct = 100; // Snap to full width
+                pct = 100;
             }
 
             updateUI(pct);
             localStorage.setItem('invoice_editor_pct', pct.toFixed(1));
+            updatePreviewScaling();
         });
 
         document.addEventListener('mouseup', function() {
@@ -762,13 +841,11 @@
                 isDragging = false;
                 document.body.classList.remove('is-resizing');
                 divider.classList.remove('is-dragging');
-                if (window.invoiceBuilder && !container.classList.contains('preview-hidden')) {
-                    window.invoiceBuilder.calculateAndRender();
-                }
+                updatePreviewScaling();
             }
         });
 
-        // Touch Drag Handlers (Trackpad / Touch)
+        // Touch Drag Handlers
         divider.addEventListener('touchstart', function(e) {
             isDragging = true;
             document.body.classList.add('is-resizing');
@@ -784,6 +861,7 @@
             if (pct > 92) pct = 100;
             updateUI(pct);
             localStorage.setItem('invoice_editor_pct', pct.toFixed(1));
+            updatePreviewScaling();
         }, { passive: true });
 
         document.addEventListener('touchend', function() {
@@ -791,13 +869,20 @@
                 isDragging = false;
                 document.body.classList.remove('is-resizing');
                 divider.classList.remove('is-dragging');
+                updatePreviewScaling();
             }
         });
 
-        // Double-click divider to quickly toggle between 50% split and 100% full width
+        // Double-click divider to quickly toggle between split and full width
         divider.addEventListener('dblclick', function() {
             window.togglePreviewPane();
         });
+
+        // Initial scale after sheet renders
+        window.addEventListener('load', function() {
+            setTimeout(updatePreviewScaling, 100);
+        });
+        setTimeout(updatePreviewScaling, 200);
     })();
     </script>
 </body>
