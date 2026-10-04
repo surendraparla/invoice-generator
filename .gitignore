@@ -1,0 +1,11 @@
+# Node dependencies
+node_modules/
+dist/
+build/
+
+# macOS system files
+.DS_Store
+
+# Temporary files
+*.tmp
+*.log

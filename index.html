@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvoiceMaster - Offline Desktop Invoice Generator</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/print.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div>
+                <div class="brand-section">
+                    <div class="brand-icon">🧾</div>
+                    <div>
+                        <div class="brand-title">InvoiceMaster</div>
+                        <div class="brand-subtitle">Desktop Edition</div>
+                    </div>
+                </div>
+
+                <nav class="nav-menu">
+                    <button class="tab-btn active" data-target="invoiceTab">
+                        <span class="tab-btn-icon">📄</span>
+                        <span>Create Invoice</span>
+                    </button>
+                    <button class="tab-btn" data-target="catalogTab">
+                        <span class="tab-btn-icon">📦</span>
+                        <span>Product Catalog</span>
+                    </button>
+                    <button class="tab-btn" data-target="historyTab">
+                        <span class="tab-btn-icon">📑</span>
+                        <span>Invoice History</span>
+                    </button>
+                    <button class="tab-btn" data-target="settingsTab">
+                        <span class="tab-btn-icon">⚙️</span>
+                        <span>Settings & Backup</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="sidebar-footer">
+                <span class="badge-offline">100% Offline & Local</span>
+                <span>All data stored on this device</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- TAB 1: CREATE INVOICE -->
+            <section id="invoiceTab" class="tab-pane active">
+                <header class="page-header">
+                    <div>
+                        <h1 class="page-header-title">Invoice Generator</h1>
+                        <p class="page-header-subtitle">Build, customize, and export professional invoices</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="window.invoiceBuilder.resetToNewInvoice()">
+                            ➕ New Invoice
+                        </button>
+                        <button class="btn btn-primary" onclick="window.invoiceBuilder.saveInvoice()">
+                            💾 Save to History
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.invoiceBuilder.downloadPdf()">
+                            📥 Download PDF
+                        </button>
+                        <button class="btn btn-success" onclick="window.invoiceBuilder.printInvoice()">
+                            🖨️ Print / PDF
+                        </button>
+                    </div>
+                </header>
+
+                <div class="invoice-split-container">
+                    <!-- Left: Form Controls / Editor -->
+                    <div class="invoice-editor-pane">
+                        <!-- Invoice Meta -->
+                        <div class="editor-card">
+                            <div class="editor-card-header">
+                                <span class="editor-card-title">📌 Invoice Details</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label for="invAccentColorPicker" style="font-size: 11px; color: var(--text-muted);">Theme Color:</label>
+                                    <input type="color" id="invAccentColorPicker" value="#2563eb" style="border: none; width: 28px; height: 28px; cursor: pointer; border-radius: 4px;">
+                                </div>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Invoice Number</label>
+                                    <input type="text" id="invNumberInput" class="form-control" placeholder="INV-1001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Status</label>
+                                    <select id="invStatusSelect" class="form-control">
+                                        <option value="Draft">Draft</option>
+                                        <option value="Sent">Sent</option>
+                                        <option value="Paid">Paid</option>
+                                        <option value="Overdue">Overdue</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Issue Date</label>
+                                    <input type="date" id="invDateInput" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Due Date</label>
+                                    <input type="date" id="invDueDateInput" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">P.O. / Ref #</label>
+                                    <input type="text" id="invPoNumberInput" class="form-control" placeholder="Optional PO">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bill To / Customer -->
+                        <div class="editor-card">
+                            <div class="editor-card-header">
+                                <span class="editor-card-title">👤 Bill To (Customer)</span>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Client Name *</label>
+                                    <input type="text" id="clientNameInput" class="form-control" placeholder="e.g. John Doe">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Company Name</label>
+                                    <input type="text" id="clientCompanyInput" class="form-control" placeholder="e.g. Acme Corp">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Billing Address</label>
+                                <textarea id="clientAddressInput" class="form-control" rows="2" placeholder="Street, City, State, ZIP"></textarea>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Client Email</label>
+                                    <input type="email" id="clientEmailInput" class="form-control" placeholder="client@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Client Phone</label>
+                                    <input type="tel" id="clientPhoneInput" class="form-control" placeholder="+1 555-0192">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tax / VAT ID</label>
+                                    <input type="text" id="clientTaxIdInput" class="form-control" placeholder="Optional VAT/GST">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Line Items -->
+                        <div class="editor-card">
+                            <div class="editor-card-header">
+                                <span class="editor-card-title">📋 Line Items</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.openCatalogPickerModal()">
+                                        📦 + Add from Catalog
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="window.invoiceBuilder.addCustomItem()">
+                                        ➕ Custom Item
+                                    </button>
+                                </div>
+                            </div>
+
+                            <table class="line-items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item & Details</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-center">Unit</th>
+                                        <th class="text-right">Price</th>
+                                        <th class="text-right">Tax</th>
+                                        <th class="text-right">Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceLineItemsBody">
+                                    <!-- Populated by invoice.js -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Adjustments & Totals -->
+                        <div class="editor-card">
+                            <div class="editor-card-header">
+                                <span class="editor-card-title">💰 Discounts & Adjustments</span>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label class="form-label">Discount</label>
+                                    <div style="display: flex; gap: 6px;">
+                                        <input type="number" step="any" min="0" id="invDiscountValueInput" class="form-control" value="0">
+                                        <select id="invDiscountTypeInput" class="form-control" style="width: 90px;">
+                                            <option value="percent">%</option>
+                                            <option value="flat">Flat</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Shipping / Handling</label>
+                                    <input type="number" step="0.01" min="0" id="invShippingFeeInput" class="form-control" value="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Amount Paid / Deposit</label>
+                                    <input type="number" step="0.01" min="0" id="invPaidAmountInput" class="form-control" value="0.00">
+                                </div>
+                            </div>
+
+                            <div class="totals-summary-card">
+                                <div class="summary-row"><span>Subtotal:</span><strong id="calcSubtotal">$0.00</strong></div>
+                                <div class="summary-row text-success"><span>Discount:</span><strong id="calcDiscount">-$0.00</strong></div>
+                                <div class="summary-row"><span>Tax Total:</span><strong id="calcTax">$0.00</strong></div>
+                                <div class="summary-row"><span>Shipping:</span><strong id="calcShipping">$0.00</strong></div>
+                                <div class="summary-row summary-grand-total"><span>Grand Total:</span><strong id="calcGrandTotal">$0.00</strong></div>
+                                <div class="summary-row summary-balance-due"><span>Balance Due:</span><strong id="calcBalanceDue">$0.00</strong></div>
+                            </div>
+                        </div>
+
+                        <!-- Notes & Terms -->
+                        <div class="editor-card">
+                            <div class="editor-card-header">
+                                <span class="editor-card-title">📝 Notes & Terms</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Customer Notes</label>
+                                <textarea id="invNotesInput" class="form-control" rows="2" placeholder="e.g. Thank you for your business!"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Terms & Conditions</label>
+                                <textarea id="invTermsInput" class="form-control" rows="2" placeholder="e.g. Payment due within 14 days."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live A4 Printable Canvas -->
+                    <div class="invoice-preview-pane">
+                        <div id="invoicePrintArea">
+                            <!-- Rendered in real-time by invoice.js -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: PRODUCT CATALOG -->
+            <section id="catalogTab" class="tab-pane">
+                <header class="page-header">
+                    <div>
+                        <h1 class="page-header-title">Product & Service Catalog</h1>
+                        <p class="page-header-subtitle">Manage products, pricing, and import spreadsheets</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="document.getElementById('catalogExcelFileInput').click()">
+                            📥 Import Excel / CSV
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.catalogManager.exportToExcel()">
+                            📤 Export to Excel
+                        </button>
+                        <button class="btn btn-primary" onclick="window.catalogManager.openAddModal()">
+                            ➕ Add Item
+                        </button>
+                    </div>
+                </header>
+
+                <div class="table-container">
+                    <div class="filter-bar">
+                        <div class="filter-left">
+                            <input type="text" id="catalogSearchInput" class="form-control" style="width: 280px;" placeholder="🔍 Search items, SKU, category...">
+                            <select id="catalogCategoryFilter" class="form-control" style="width: 180px;">
+                                <option value="all">All Categories</option>
+                            </select>
+                        </div>
+                        <div class="filter-right">
+                            <span id="catalogItemCount" class="text-muted" style="font-size: 13px;">0 items</span>
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">SKU / Code</th>
+                                <th>Item & Description</th>
+                                <th style="width: 140px;">Category</th>
+                                <th style="width: 80px;">Unit</th>
+                                <th class="text-right" style="width: 120px;">Unit Price</th>
+                                <th class="text-right" style="width: 100px;">Tax Rate</th>
+                                <th class="text-center" style="width: 110px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalogTableBody">
+                            <!-- Populated by catalog.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 3: INVOICE HISTORY -->
+            <section id="historyTab" class="tab-pane">
+                <header class="page-header">
+                    <div>
+                        <h1 class="page-header-title">Invoice History</h1>
+                        <p class="page-header-subtitle">Saved invoices, payment tracking, and archives</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="window.switchTab('invoiceTab'); window.invoiceBuilder.resetToNewInvoice();">
+                            ➕ New Invoice
+                        </button>
+                    </div>
+                </header>
+
+                <div class="table-container">
+                    <div class="filter-bar">
+                        <div class="filter-left">
+                            <input type="text" id="historySearchInput" class="form-control" style="width: 280px;" placeholder="🔍 Search by invoice # or client...">
+                            <select id="historyStatusFilter" class="form-control" style="width: 150px;">
+                                <option value="all">All Statuses</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Sent">Sent</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Overdue">Overdue</option>
+                            </select>
+                        </div>
+                        <div class="filter-right">
+                            <span id="historyCountBadge" class="text-muted" style="font-size: 13px;">0 Invoices</span>
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 130px;">Invoice #</th>
+                                <th>Client</th>
+                                <th style="width: 110px;">Date</th>
+                                <th style="width: 110px;">Due Date</th>
+                                <th class="text-right" style="width: 120px;">Total</th>
+                                <th class="text-center" style="width: 120px;">Status</th>
+                                <th class="text-center" style="width: 110px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Populated by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 4: SETTINGS & BACKUP -->
+            <section id="settingsTab" class="tab-pane">
+                <header class="page-header">
+                    <div>
+                        <h1 class="page-header-title">Settings & Business Profile</h1>
+                        <p class="page-header-subtitle">Company profile, default terms, currency, and data backups</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="window.settingsManager.saveSettings()">
+                            💾 Save Settings
+                        </button>
+                    </div>
+                </header>
+
+                <div class="table-container" style="max-width: 900px;">
+                    <!-- Company Profile -->
+                    <div class="editor-card">
+                        <div class="editor-card-header">
+                            <span class="editor-card-title">🏢 Business Information</span>
+                        </div>
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label">Business / Trade Name *</label>
+                                <input type="text" id="settingBusinessName" class="form-control" placeholder="Your Business Name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tagline / Slogan</label>
+                                <input type="text" id="settingTagline" class="form-control" placeholder="e.g. Professional Consulting">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Company Logo</label>
+                            <div style="display: flex; gap: 14px; align-items: center;">
+                                <img id="settingLogoPreview" src="" alt="Logo" style="max-height: 50px; max-width: 140px; display: none; border-radius: 4px; border: 1px solid var(--border-color);">
+                                <input type="file" id="settingLogoInput" accept="image/*" class="form-control" style="max-width: 300px;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Business Address</label>
+                            <textarea id="settingAddress" class="form-control" rows="2" placeholder="Street, City, Country, ZIP"></textarea>
+                        </div>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" id="settingPhone" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" id="settingEmail" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Website</label>
+                                <input type="text" id="settingWebsite" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tax ID / Business Registration #</label>
+                            <input type="text" id="settingTaxId" class="form-control" placeholder="e.g. EIN, VAT, GST ID">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Bank & Payment Instructions (Printed on Invoice)</label>
+                            <textarea id="settingPaymentDetails" class="form-control" rows="3" placeholder="Bank name, IBAN / Account #, Routing, PayPal, etc."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Defaults -->
+                    <div class="editor-card">
+                        <div class="editor-card-header">
+                            <span class="editor-card-title">⚙️ Invoice Defaults & Numbering</span>
+                        </div>
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label class="form-label">Currency Symbol</label>
+                                <input type="text" id="settingCurrencySymbol" class="form-control" placeholder="$" maxlength="4">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Default Tax Rate (%)</label>
+                                <input type="number" step="any" min="0" id="settingDefaultTaxRate" class="form-control" placeholder="10">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Invoice Prefix</label>
+                                <input type="text" id="settingInvoicePrefix" class="form-control" placeholder="INV-">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Next Sequence #</label>
+                                <input type="number" id="settingNextInvoiceNum" class="form-control" placeholder="1001">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Default Payment Terms</label>
+                            <textarea id="settingDefaultTerms" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Default Customer Notes</label>
+                            <textarea id="settingDefaultNotes" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Complete Data Backup & Restore -->
+                    <div class="editor-card">
+                        <div class="editor-card-header">
+                            <span class="editor-card-title">💾 Backup & Restore (Zero Cloud, 100% Local)</span>
+                        </div>
+                        <p class="text-muted" style="font-size: 13px; margin-bottom: 14px;">
+                            Keep complete control over your data. Download a complete backup copy of your catalog, past invoices, and settings as a local JSON file, or restore a backup.
+                        </p>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <button class="btn btn-secondary" onclick="window.settingsManager.exportFullBackup()">
+                                📤 Download Full Backup (.json)
+                            </button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('backupRestoreFileInput').click()">
+                                📥 Restore From Backup (.json)
+                            </button>
+                            <input type="file" id="backupRestoreFileInput" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Hidden file inputs -->
+    <input type="file" id="catalogExcelFileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+
+    <!-- MODAL: Add / Edit Catalog Item -->
+    <dialog id="catalogItemModal">
+        <form id="catalogItemForm" method="dialog" onsubmit="event.preventDefault(); window.catalogManager.saveItemFromForm();">
+            <div class="modal-header">
+                <h3 class="modal-title" id="catalogModalTitle">Add Catalog Item</h3>
+                <button type="button" class="btn-icon" onclick="document.getElementById('catalogItemModal').close()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="catalogItemId">
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label class="form-label">SKU / Code</label>
+                        <input type="text" id="itemSku" class="form-control" placeholder="e.g. IT-101">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <input type="text" id="itemCategory" class="form-control" placeholder="e.g. Services, Hardware">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Item / Service Name *</label>
+                    <input type="text" id="itemName" class="form-control" placeholder="Name of product or service" required>
+                </div>
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label class="form-label">Unit Price ($) *</label>
+                        <input type="number" step="0.01" min="0" id="itemPrice" class="form-control" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unit of Measure</label>
+                        <input type="text" id="itemUnit" class="form-control" placeholder="pcs, hours, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tax Rate (%)</label>
+                        <input type="number" step="any" min="0" max="100" id="itemTaxRate" class="form-control" placeholder="10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description / Details</label>
+                    <textarea id="itemDescription" class="form-control" rows="2" placeholder="Optional details or specifications"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('catalogItemModal').close()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Item</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- MODAL: Excel Import Preview -->
+    <dialog id="importPreviewModal" style="max-width: 750px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Excel Catalog Import Preview</h3>
+            <button type="button" class="btn-icon" onclick="window.catalogManager.closeImportModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom: 14px; font-size: 13px;">
+                <span>File: <strong id="previewFileName">filename.xlsx</strong> — </span>
+                <span id="previewTotalRows" class="text-success font-semibold">0 items detected</span>
+            </div>
+            <p class="text-muted" style="font-size: 12px; margin-bottom: 12px;">
+                Below is a preview of the first 5 records parsed from your spreadsheet. Verify columns and choose an import mode:
+            </p>
+            <div style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 16px;">
+                <table class="data-table" style="font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Unit</th>
+                            <th class="text-right">Price</th>
+                            <th class="text-right">Tax</th>
+                        </tr>
+                    </thead>
+                    <tbody id="importPreviewTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="window.catalogManager.closeImportModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="window.catalogManager.confirmImport('replace')">Replace Existing Catalog</button>
+            <button type="button" class="btn btn-primary" onclick="window.catalogManager.confirmImport('append')">+ Append to Existing Catalog</button>
+        </div>
+    </dialog>
+
+    <!-- MODAL: Fast Catalog Picker Inside Invoice Tab -->
+    <dialog id="catalogPickerModal" style="max-width: 650px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Select Item from Catalog</h3>
+            <button type="button" class="btn-icon" onclick="document.getElementById('catalogPickerModal').close()">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="text" id="catalogPickerSearch" class="form-control mb-1" placeholder="🔍 Type to filter catalog items...">
+            <div style="max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-top: 12px;">
+                <table class="data-table" style="font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">SKU</th>
+                            <th>Item Name</th>
+                            <th class="text-right" style="width: 110px;">Price</th>
+                            <th class="text-center" style="width: 80px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catalogPickerTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('catalogPickerModal').close()">Close</button>
+        </div>
+    </dialog>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Scripts (100% Local & Offline) -->
+    <script src="assets/js/xlsx.full.min.js"></script>
+    <script src="assets/js/html2pdf.bundle.min.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/catalog.js"></script>
+    <script src="assets/js/invoice.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
