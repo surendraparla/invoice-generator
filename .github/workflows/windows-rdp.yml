@@ -1,0 +1,117 @@
+name: Windows Cloud Virtual Desktop (RDP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ngrok_token:
+        description: 'Ngrok Auth Token (Get free at https://dashboard.ngrok.com/get-started/your-authtoken)'
+        required: true
+        type: string
+      rdp_password:
+        description: 'Custom Windows Password (Optional, default is TestPass1234!)'
+        required: false
+        default: 'TestPass1234!'
+        type: string
+
+jobs:
+  launch-windows-rdp:
+    name: Start Windows Virtual Machine
+    runs-on: windows-latest
+    timeout-minutes: 360 # GitHub maximum is 6 hours
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies & Build Windows .exe
+        run: |
+          npm install
+          npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Windows User & Enable RDP
+        shell: powershell
+        run: |
+          $password = "${{ github.event.inputs.rdp_password }}"
+          if ([string]::IsNullOrWhiteSpace($password)) { $password = "TestPass1234!" }
+
+          # Enable RDP in Windows Registry & Firewall
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 0
+
+          # Create runneradmin user and add to Administrators
+          net user runneradmin $password /add /y
+          net localgroup administrators runneradmin /add
+
+          # Ensure Desktop directory exists
+          $desktopPath = "C:\Users\runneradmin\Desktop"
+          if (-not (Test-Path $desktopPath)) {
+            New-Item -ItemType Directory -Force -Path $desktopPath
+          }
+
+          # Copy compiled executables and sample catalog to the desktop
+          Copy-Item "dist\InvoiceMaster 1.0.0.exe" "$desktopPath\InvoiceMaster-Portable.exe" -Force
+          Copy-Item "dist\InvoiceMaster Setup 1.0.0.exe" "$desktopPath\InvoiceMaster-Installer.exe" -Force
+          Copy-Item "sample-catalog.xlsx" "$desktopPath\sample-catalog.xlsx" -Force
+
+          Write-Host "✅ Application executables placed on Desktop!"
+
+      - name: Setup Ngrok Tunnel & Start RDP
+        shell: powershell
+        run: |
+          $token = "${{ github.event.inputs.ngrok_token }}"
+
+          Write-Host "Downloading Ngrok..."
+          Invoke-WebRequest -Uri "https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip" -OutFile "ngrok.zip"
+          Expand-Archive ngrok.zip -DestinationPath "C:\ngrok" -Force
+
+          Write-Host "Configuring Ngrok..."
+          & C:\ngrok\ngrok.exe config add-authtoken $token
+
+          Write-Host "Starting RDP tunnel on port 3389..."
+          Start-Process -FilePath "C:\ngrok\ngrok.exe" -ArgumentList "tcp 3389" -WindowStyle Hidden
+
+          # Wait for Ngrok to connect
+          Start-Sleep -Seconds 7
+
+          # Retrieve public endpoint from local Ngrok API
+          try {
+            $tunnels = (Invoke-RestMethod -Uri "http://127.0.0.1:4040/api/tunnels").tunnels
+            $publicUrl = $tunnels[0].public_url
+            $rdpHost = $publicUrl -replace "tcp://", ""
+
+            $password = "${{ github.event.inputs.rdp_password }}"
+            if ([string]::IsNullOrWhiteSpace($password)) { $password = "TestPass1234!" }
+
+            Write-Host "`n========================================================" -ForegroundColor Green
+            Write-Host "🎉 YOUR WINDOWS CLOUD INSTANCE IS READY TO CONNECT! 🎉" -ForegroundColor Green
+            Write-Host "========================================================" -ForegroundColor Green
+            Write-Host "💻 RDP Host / PC Name : $rdpHost" -ForegroundColor Yellow
+            Write-Host "👤 Username           : runneradmin" -ForegroundColor Yellow
+            Write-Host "🔑 Password           : $password" -ForegroundColor Yellow
+            Write-Host "========================================================" -ForegroundColor Green
+            Write-Host "Desktop items ready to test:"
+            Write-Host "  1. InvoiceMaster-Portable.exe (Double-click to test immediately)"
+            Write-Host "  2. InvoiceMaster-Installer.exe (Full installation test)"
+            Write-Host "  3. sample-catalog.xlsx (For testing Excel import)"
+            Write-Host "========================================================`n"
+          } catch {
+            Write-Host "Failed to retrieve Ngrok public URL: $_" -ForegroundColor Red
+            exit 1
+          }
+
+          # Keep the session alive (until cancelled or up to 6 hours)
+          Write-Host "Session is running. Keep this GitHub Actions tab open or cancel it when you are done."
+          $counter = 0
+          while ($counter -lt 360) {
+            Start-Sleep -Seconds 60
+            $counter++
+            Write-Host "RDP instance active... ($counter minutes elapsed)"
+          }
