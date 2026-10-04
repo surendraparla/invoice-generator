@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InvoiceMaster - Desktop Invoice Generator</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧾</text></svg>">
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="stylesheet" href="assets/css/print.css">
+    <link rel="stylesheet" href="assets/css/styles.css?v=2">
+    <link rel="stylesheet" href="assets/css/print.css?v=2">
 </head>
 <body>
     <div class="app-container">
@@ -658,13 +658,42 @@
     <!-- Toast Notifications Container -->
     <div id="toastContainer"></div>
 
-    <!-- Offline Scripts -->
-    <script src="assets/js/xlsx.full.min.js"></script>
-    <script src="assets/js/html2pdf.bundle.min.js"></script>
-    <script src="assets/js/qrcode.min.js"></script>
-    <script src="assets/js/storage.js"></script>
-    <script src="assets/js/catalog.js"></script>
-    <script src="assets/js/invoice.js"></script>
-    <script src="assets/js/app.js"></script>
+    <!-- Scripts -->
+    <script src="assets/js/xlsx.full.min.js?v=2"></script>
+    <script src="assets/js/html2pdf.bundle.min.js?v=2"></script>
+    <script src="assets/js/qrcode.min.js?v=2"></script>
+    <script src="assets/js/storage.js?v=2"></script>
+    <script src="assets/js/catalog.js?v=2"></script>
+    <script src="assets/js/invoice.js?v=2"></script>
+    <script src="assets/js/app.js?v=2"></script>
+
+    <script>
+    // Bulletproof inline toggle preview definition
+    window.togglePreviewPane = function() {
+        var container = document.querySelector('.invoice-split-container');
+        var btn = document.getElementById('togglePreviewBtn');
+        if (!container) return;
+
+        var isHidden = container.classList.toggle('preview-hidden');
+
+        if (btn) {
+            if (isHidden) {
+                btn.innerHTML = '👁️ Show Preview';
+                btn.className = 'btn btn-primary';
+                btn.title = 'Show invoice sheet preview';
+                if (window.showToast) window.showToast('Preview hidden. Editor expanded full width!', 'info');
+            } else {
+                btn.innerHTML = '👁️ Hide Preview';
+                btn.className = 'btn btn-secondary';
+                btn.title = 'Hide preview and expand editor to full width';
+                if (window.invoiceBuilder) window.invoiceBuilder.calculateAndRender();
+            }
+        }
+
+        try {
+            localStorage.setItem('invoice_preview_hidden', isHidden ? 'true' : 'false');
+        } catch (e) {}
+    };
+    </script>
 </body>
 </html>
